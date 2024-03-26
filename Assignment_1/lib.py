@@ -35,14 +35,14 @@ def perceptron(X, Y, eta=0.1, epochs=1000, stochastic=False, w = [], b = np.rand
         if stochastic:
             for i in range(len(X)):
                 i = np.random.randint(0, len(X))
-                y_pred = predict_th(X[i], w, b)
+                y_pred = predict_threshold(X[i], w, b)
                 error = Y[i] - y_pred
                 for j in range(len(X[0])):
                     w[j] += eta * error * X[i][j]
                 b += eta * error
         else:
             for i in range(len(X)):
-                y_pred = predict_th(X[i], w, b)
+                y_pred = predict_threshold(X[i], w, b)
                 error = Y[i] - y_pred
                 for j in range(len(X[0])):
                     w[j] += eta * error * X[i][j]
@@ -54,7 +54,17 @@ def perceptron(X, Y, eta=0.1, epochs=1000, stochastic=False, w = [], b = np.rand
 def loss(y_true, y_pred):
   return -np.mean(y_true * np.log(y_pred) + (1 - y_true) * np.log(1 - y_pred))
 
-def predict_th(x, w, b):
+def sigmoid(z):
+    return np.float64(1/(1+np.exp(-z)))
+
+def predict_sigmoid(x, w, b):
+    pred = 0
+    for i in range(len(x)):
+        pred += x[i] * w[i]
+    pred += b
+    return sigmoid(pred)
+
+def predict_threshold(x, w, b):
     pred = 0
     for i in range(len(x)):
         pred += x[i] * w[i]
@@ -80,19 +90,6 @@ def plot_decision_boundary(x, y, w, b, label="Label"):
         print("Error: x should have 2 or 3 columns")
     plt.legend()
     # plt.show()
-
-
-
-
-def sigmoid(z):
-    return 1/(1+np.exp(-z))
-
-def predict_sigmoid(x, w, b):
-    pred = 0
-    for i in range(len(x)):
-        pred += x[i] * w[i]
-    pred += b
-    return sigmoid(pred)
 
 def gradient_descent_sigmoid(X, Y, eta=0.1, epochs=1000, w = [], b = np.random.rand(),stochastic=False):
     y_pred = []
@@ -123,3 +120,80 @@ def gradient_descent_sigmoid(X, Y, eta=0.1, epochs=1000, w = [], b = np.random.r
                 b += eta * error * 2
     
     return w, b , y_pred
+
+def show_results(X_te, Y_te, w, b, show_prediction = False):
+    
+    y_pred = 1 / (1 + np.exp(-(np.dot(X_te, w) + b)))
+    error = 0
+    for i in range(len(y_pred)):
+        error += Y_te[i] - y_pred[i]
+
+    print("Predictions: ", np.around(y_pred,3))
+    print("Sum of dataset test error:", error)
+    print("Weights: ", w)
+    print("Bias: ", b)
+
+    if show_prediction==True:
+        print("Predictions: ", np.around(y_pred,3))
+        # print("Real Values: ", Y_te)
+    return y_pred
+
+
+def gradient_with_two_labels(cls3_train):
+    ogrenme_orani = 0.1
+    epoch_sayisi = 1000
+
+    # Dataset parsing
+    x_train = cls3_train[:, 0:2]
+    y_train = cls3_train[:, 2:4]
+
+    # Gizli Katman Ağırlıkları ve Eğiklikler
+    w1 = np.random.rand(2, 3)
+    b1 = np.random.rand(3)
+    w2 = np.random.rand(3, 2)
+    b2 = np.random.rand(2)
+
+    # Gradient Descent
+    for epoch in range(epoch_sayisi):
+
+        # Forward Propagation
+        a1 = sigmoid(np.dot(x_train, w1) + b1)
+        a2 = sigmoid(np.dot(a1, w2) + b2)
+
+        # Error Calculation
+        error = y_train - a2
+
+        # Backpropagation
+        d2 = error * (1 - a2) * a2
+        dw2 = np.dot(a1.T, d2)
+        db2 = np.sum(d2, axis=0)
+
+        d1 = np.dot(d2, w2.T) * (1 - a1) * a1
+        dw1 = np.dot(x_train.T, d1)
+        db1 = np.sum(d1, axis=0)
+
+        # Weight Update
+        w1 -= ogrenme_orani * dw1
+        b1 -= ogrenme_orani * db1
+        w2 -= ogrenme_orani * dw2
+        b2 -= ogrenme_orani * db2
+
+    predict = sigmoid(np.dot(a1, w2[:,0]) + b2[0])
+
+    x_line = np.linspace(min(x_train[:, 0]), max(x_train[:, 1]), 100)
+
+    y_11 = ((-w2[0, 0] - w2[1, 0] - w2[2, 0]) * x_line - b2[0]) / w2[1, 0]
+    y_22 = ((-w2[0, 1] - w2[1, 1] - w2[2, 1]) * x_line - b2[1]) / w2[1, 1]
+
+    plt.plot(x_line, y_11, color='red')
+    plt.plot(x_line, y_22, color='red')
+
+    plt.scatter(x_train[:, 0], x_train[:, 1], c=cls3_train[:, 1:2])
+
+
+
+    print("Hata:", np.mean(np.square(error)))
+    print("Ağırlıklar:", w2)
+    print("Eğiklikler:", b2)
+    plt.show()
+    return w2, b2

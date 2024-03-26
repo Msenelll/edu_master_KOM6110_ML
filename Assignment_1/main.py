@@ -29,6 +29,7 @@ b = np.random.rand()
 
 # Öğrenme oranı
 eta = 0.1
+epochs = 1000
 
 X_tr = cls2_train[:, 0:2]
 Y_tr = cls2_train[:, 2]
@@ -36,43 +37,27 @@ Y_tr = cls2_train[:, 2]
 X_te = cls2_test[:, 0:2]
 Y_te = cls2_test[:, 2]
 
-print(len(cls2_train[:, 2]))
+y_pred = []
 
-for epoch in range(0,len(cls2_train)):
-    # Tahmini hesaplayın
-    # y = cls2_train[epoch, 2]
-    # x = cls2_train[epoch, 0:2]
-    # print(epoch)
-    # print(x)
+for epoch in range(epochs):
+    for i in range(len(X_tr)):
+        i = np.random.randint(0, len(X_tr))
+        y_pred.append(lib.predict_sigmoid(X_tr[i], w, b))
+        error = Y_tr[i] - y_pred[-1]
 
-    # Rosenblatt’s Perceptron
-    # y_pred = np.dot(X[epoch], w) + b
-    y_pred = 1 if (X_tr[epoch,0]*w[0] + X_tr[epoch,1]*w[1] + b) > 0 else 0
-    # # Hatayı hesaplayın
-    error = Y_tr[epoch] - y_pred
-    
-    # # Ağırlıkları ve eşik değerini güncelleyin
-    w[0] += eta * error * X_tr[epoch,0]
-    w[1] += eta * error * X_tr[epoch,1]
-    b += eta * error
-
-# Tahmini çizmek için
-# Verileri ve etiketleri tanımlayın
-
-x_train = cls2_train[:, 0:2]
-y_train = cls2_train[:, 2]
-
-# Karar sınırını çizmek için
-x_line = np.linspace(min(X_tr[:, 0]), max(X_tr[:, 1]), 100)
+        for j in range(len(X_tr[0])):
+            w[j] += eta * error * X_tr[i][j] * 2 / len(X_tr)
+        b += eta * error * 2
 
 
-# y_line_0 = (-w[0] * x_line_0 - b) / w[0]
-y_line = (-w[1] * x_line - w[0] * x_line + b)
-plt.plot(x_line, y_line, color='red')
+# y_pred = 1 / (1 + np.exp(-(np.dot(X_te, w) + b)))
 
-# # Verileri ve karar sınırını gösterin
-plt.scatter(x_train[:, 0], x_train[:, 1], c=y_train)
-plt.show()
+# # Doğruluk Hesaplama
 
+# accuracy = np.mean(y_pred == Y_te)
 
-# print(y_pred)
+# # Sonuçları Yazdırma
+# print("Test Verisi Doğruluk:", accuracy)
+# print("Tahminler:", y_pred)
+
+lib.show_results(X_te, Y_te, w, b)
