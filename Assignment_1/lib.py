@@ -1,3 +1,4 @@
+from cv2 import mean
 import numpy as np
 import matplotlib.pyplot as plt
 import os
@@ -141,7 +142,7 @@ def show_results(X_te, Y_te, w, b, show_prediction = False):
 
 def gradient_with_two_labels(cls3_train):
     ogrenme_orani = 0.1
-    epoch_sayisi = 1000
+    epoch_sayisi = 100
 
     # Dataset parsing
     x_train = cls3_train[:, 0:2]
@@ -153,6 +154,7 @@ def gradient_with_two_labels(cls3_train):
     w2 = np.random.rand(3, 2)
     b2 = np.random.rand(2)
 
+    error_arr = []
     # Gradient Descent
     for epoch in range(epoch_sayisi):
 
@@ -161,7 +163,9 @@ def gradient_with_two_labels(cls3_train):
         a2 = sigmoid(np.dot(a1, w2) + b2)
 
         # Error Calculation
-        error = y_train - a2
+        error =  a2 - y_train
+
+        error_arr.append(np.mean(np.square(error)))
 
         # Backpropagation
         d2 = error * (1 - a2) * a2
@@ -182,9 +186,12 @@ def gradient_with_two_labels(cls3_train):
 
     x_line = np.linspace(min(x_train[:, 0]), max(x_train[:, 1]), 100)
 
-    y_11 = ((-w2[0, 0] - w2[1, 0] - w2[2, 0]) * x_line - b2[0]) / w2[1, 0]
+    y_11 = ((-w2[0, 0] - w2[1, 0] - w2[2, 0]) * x_line - b2[0]) / w2[1, 1]
     y_22 = ((-w2[0, 1] - w2[1, 1] - w2[2, 1]) * x_line - b2[1]) / w2[1, 1]
 
+
+    plt.plot(error_arr, color='blue')
+    plt.show()
     plt.plot(x_line, y_11, color='red')
     plt.plot(x_line, y_22, color='red')
 
@@ -192,8 +199,8 @@ def gradient_with_two_labels(cls3_train):
 
 
 
-    print("Hata:", np.mean(np.square(error)))
-    print("Ağırlıklar:", w2)
-    print("Eğiklikler:", b2)
+    print("Error:", np.mean(np.square(error)))
+    print("Weights:", w2)
+    print("Bias:", b2)
     plt.show()
     return w2, b2

@@ -1,9 +1,15 @@
 # Education
 
-v0.1
+v1.0
 
-test.py düzenlendi
-lib.py'a show_results eklendi
-    show_results performans ölçümlerini kapsıyor
-lib.py'a gradient_with_two_label eklendi
-    gradient_with_two_label 2 feature ve 2 label'i kapsayan 3 nodeluk bir hidden layer içeriyor.
+main.py silindi
+
+lib.py
+    gradient_with_two_labels()
+        error = y_train - a2 -> 
+        error = a2 - y_train 
+        olarak değiştirildi.
+        
+test.py'ın ismi değiştirildi
+    main.py yapıldı
+
