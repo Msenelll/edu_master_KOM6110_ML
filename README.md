@@ -1,15 +1,7 @@
 # Education
 
-v1.0
+v1.1
 
-main.py silindi
-
-lib.py
-    gradient_with_two_labels()
-        error = y_train - a2 -> 
-        error = a2 - y_train 
-        olarak değiştirildi.
-        
-test.py'ın ismi değiştirildi
-    main.py yapıldı
-
+.rar version has been added
+you can reach via 
+https://github.com/Msenelll/edu_master_KOM6110_ML.git
